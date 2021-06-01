@@ -1,0 +1,267 @@
+$gray: #f2f4f7;
+$grayLighter: #e5e6e7;
+$blue: #1f75e6;
+$blueLight: #76a6e6c4;
+$grayDark: #53575c;
+$white: #fff;
+$red: #d34f4f;
+$green: #338d33;
+
+%checklist-display {
+  display: inline-flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+/**********************
+ * main container box *
+ **********************/
+.main-container {
+  max-width: 800px;
+  width: 100%;
+  margin: auto;
+  background-color: $gray;
+  padding: 30px 20px;
+  margin-top: 5%;
+  box-shadow: 0 4px 9px #cac9c9;
+  /**********
+   * header *
+   **********/
+  &__title {
+    text-align: center;
+    padding-bottom: 25px;
+    i,
+    h2 {
+      vertical-align: middle;
+      display: inline-block;
+    }
+    &--color {
+      color: $blue;
+    }
+    &--size {
+      font-size: 26px;
+      font-weight: 600;
+      i {
+        font-size: 40px;
+      }
+      h2 {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  /****************
+   * add new item *
+   ***************/
+  &__add-new-item {
+    display: flex;
+    flex-direction: row;
+    padding: 7px;
+    border-radius: 5px;
+    margin: 30px 60px;
+    background-color: $white;
+    input[type="text"] {
+      flex-grow: 2;
+      border: none;
+      font-size: 16px;
+    }
+    input:focus {
+      outline: none;
+    }
+    button {
+      border: none;
+      outline: none;
+      background-color: $blue;
+      color: $white;
+      padding: 10px 15px;
+      border-radius: 5px;
+    }
+    button:hover {
+      cursor: pointer;
+    }
+  }
+
+  /***********************
+   * filter sort section *
+   **********************/
+  &__items-filter-sort {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    border-top: 2px solid $grayLighter;
+    padding: 30px 60px;
+    font-size: 12px;
+    .filter {
+      padding-right: 15px;
+    }
+    select {
+      border: 1px solid $grayLighter;
+      padding: 5px;
+      border-radius: 5px;
+      margin-left: 4px;
+      option {
+        padding: 4px;
+        font-size: 12px;
+      }
+    }
+    .select:focus {
+      box-shadow: 0 0 4px $blue;
+      outline: none;
+    }
+    .sort {
+      i {
+        color: $green;
+      }
+    }
+  }
+  /*******************
+   * checklist items *
+   *******************/
+  &__checklist-items {
+    padding: 30px 60px;
+    color: $grayDark;
+    .checklist-row {
+      display: flex;
+      margin-bottom: 25px;
+      align-items: center;
+      .form-group {
+        @extend %checklist-display;
+        font-size: 16px;
+        margin-right: auto;
+        display: block;
+        width: calc(100% - 115px);
+        .edit-input {
+          width: calc(100% - 220px);
+          padding: 5px 7px;
+          background-color: $white;
+          border: none;
+          outline: none;
+          font-size: 16px;
+          color: $grayDark;
+          border-radius: 4px;
+        }
+      }
+      .icons-group {
+        visibility: hidden;
+        .icon {
+          padding-left: 25px;
+          font-size: 14px;
+        }
+        .icon-pen {
+          color: $green;
+        }
+        .icon-trash {
+          color: $red;
+        }
+        .date {
+          display: block;
+          text-align: right;
+          font-size: 10px;
+          color: $grayDark;
+          margin-top: 10px;
+        }
+      }
+      &:hover .icons-group {
+        visibility: visible;
+      }
+    }
+  }
+}
+
+/*********************** 
+* style checkbox color *
+***********************/
+.styled-checkbox {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: -3px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 16px;
+}
+/* Hide the browser's default checkbox */
+.styled-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0px;
+  left: 0;
+  content: "";
+  margin-right: 10px;
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  background: transparent;
+  border: 2px solid $blue;
+  border-radius: 2px;
+}
+.styled-checkboxr input:checked ~ .checkmark {
+  background-color: transparent;
+}
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.styled-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+.styled-checkbox .checkmark:after {
+  left: 4px;
+  top: 0px;
+  width: 5px;
+  height: 10px;
+  border: solid $blue;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+.edit-input {
+  margin-left: 35px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/**********
+* tooltip *
+***********/
+.tooltip {
+  position: relative;
+  display: inline-block;
+  .tooltiptext {
+    visibility: hidden;
+    width: 65px;
+    background-color: black;
+    color: $white;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: center;
+    border-radius: 5px;
+    padding: 4px 0;
+    position: absolute;
+    z-index: 1;
+    top: 150%;
+    left: 50%;
+    margin-left: -50%;
+  }
+  .tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+  }
+  &:hover .tooltiptext {
+    visibility: visible;
+  }
+}
