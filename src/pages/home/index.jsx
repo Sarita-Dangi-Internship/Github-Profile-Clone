@@ -99,9 +99,13 @@ export default class Home extends Component {
               <button type="submit">Save</button>
               <button>Cancel</button>
             </form>
+            <ul>
+              <li>{ followers }followers </li>
+              <li>{following}following</li>
+              <li>{ }</li>
+            </ul>
           </div>
           <div>
-
             <input type="text" placeholder="Find a repository..." />
             <select>
               <optgroup label="Select Type">
@@ -111,7 +115,7 @@ export default class Home extends Component {
                 <option value="forks">Forks</option>
               </optgroup>
             </select>
-            
+
             <select>
               <optgroup label="Select Languages">
                 <option value="all">All</option>
@@ -120,8 +124,6 @@ export default class Home extends Component {
                 <option value="python">Python</option>
               </optgroup>
             </select>
-              
-
           </div>
         </div>
       </div>
