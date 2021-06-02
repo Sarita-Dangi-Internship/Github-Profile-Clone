@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 export default class Home extends Component {
   state = {
-    githubData: [],
+    reposData: [],
     name: "",
     username: "",
     image: "",
@@ -14,10 +14,15 @@ export default class Home extends Component {
     twitterUserName: "",
     followers: 0,
     following: 0,
+    repoName: "",
+    repoDescription: "",
+    public: true,
+    updateDate: "",
   };
 
   componentDidMount = () => {
     this.fetchUserData();
+    this.fetchReposData();
   };
 
   fetchUserData = async () => {
@@ -41,8 +46,25 @@ export default class Home extends Component {
     console.log("name", this.state.name);
     console.log("name", this.state.userName);
   };
+
+  fetchReposData = async () => {
+    const response = await fetch("https://api.github.com/users/saritadc/repos");
+    const data = await response.json();
+    console.log(data);
+
+    this.setState({
+      reposData: data,
+      repoName: data[0].name,
+      repoDescription: data.description,
+      private: data.private,
+      updateDate: data.updated_at,
+    });
+    console.log("name", this.state.repoName);
+    console.log("name", this.state.reposData);
+  };
   render() {
     const {
+      reposData,
       name,
       userName,
       image,
@@ -65,7 +87,7 @@ export default class Home extends Component {
         </nav>
         <div style={{ display: "flex" }}>
           <div>
-            <img src={image} alt="profile image" height={200} width={200} />
+            <img src={image} alt="profile" height={200} width={200} />
             <h1>{name}</h1>
             <h5>{userName}</h5>
             <p>{bio}</p>
@@ -100,9 +122,9 @@ export default class Home extends Component {
               <button>Cancel</button>
             </form>
             <ul>
-              <li>{ followers }followers </li>
+              <li>{followers}followers </li>
               <li>{following}following</li>
-              <li>{ }</li>
+              <li>{}</li>
             </ul>
           </div>
           <div>
@@ -124,6 +146,22 @@ export default class Home extends Component {
                 <option value="python">Python</option>
               </optgroup>
             </select>
+            <ul>
+              {reposData.map((repo) => (
+                <li key={repo.id}>
+                  {repo.name} <div>{repo.language}</div>{" "}
+                  <div>
+                    Updated:{" "}
+                    {(new Date(new Date().toLocaleDateString()).getTime() -
+                      new Date(
+                        new Date(repo.updated_at).toLocaleDateString()
+                      ).getTime()) /
+                      (1000 * 3600 * 24)}{" "}
+                    days ago
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
