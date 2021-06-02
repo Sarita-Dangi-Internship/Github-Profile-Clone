@@ -18,11 +18,14 @@ export default class Home extends Component {
     repoDescription: "",
     public: true,
     updateDate: "",
+    isEditMode: false,
+    star: 0,
   };
 
   componentDidMount = () => {
     this.fetchUserData();
     this.fetchReposData();
+    this.fetchStarred();
   };
 
   fetchUserData = async () => {
@@ -43,8 +46,6 @@ export default class Home extends Component {
       followers: data.followers,
       following: data.following,
     });
-    console.log("name", this.state.name);
-    console.log("name", this.state.userName);
   };
 
   fetchReposData = async () => {
@@ -59,9 +60,58 @@ export default class Home extends Component {
       private: data.private,
       updateDate: data.updated_at,
     });
-    console.log("name", this.state.repoName);
-    console.log("name", this.state.reposData);
   };
+
+  fetchStarred = async () => {
+    const response = await fetch(
+      "https://api.github.com/users/saritadc/starred"
+    );
+    const data = await response.json();
+    console.log("starred", data);
+    this.setState({ star: data.length });
+  };
+
+  handleOnEdit = () => {
+    this.setState({ isEditMode: true });
+  };
+  handleOnCancel = () => {
+    this.setState({ isEditMode: false });
+  };
+
+  handleOnSubmit = (event) => {
+    const { bio, company, location, email, website, twitterUserName } =
+      this.state;
+    event.preventDefault();
+    fetch("https://api.github.com/user", {
+      method: "PATCH",
+      headers: new Headers({
+        Authorization: "Bearer " + "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",
+        "Content-Type": "application/json",
+      }),
+      body: JSON.stringify({
+        bio,
+        company,
+        location,
+        email,
+        website,
+        twitterUserName,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+
+    this.setState({
+      isEditMode: false,
+    });
+  };
+
+  handleOnChange = (event) => {
+    console.log("e", event.target.id);
+    this.setState({
+      [event.target.id]: event.target.value,
+    });
+  };
+
   render() {
     const {
       reposData,
@@ -76,12 +126,16 @@ export default class Home extends Component {
       twitterUserName,
       followers,
       following,
+      isEditMode,
+      star,
     } = this.state;
+    const { handleOnEdit, handleOnCancel, handleOnSubmit, handleOnChange } =
+      this;
     return (
       <div>
         <nav>
           <ul>
-            <li>Repositories({followers})</li>
+            <li>Repositories({reposData.length})</li>
             <li>Projects</li>
           </ul>
         </nav>
@@ -90,62 +144,110 @@ export default class Home extends Component {
             <img src={image} alt="profile" height={200} width={200} />
             <h1>{name}</h1>
             <h5>{userName}</h5>
-            <p>{bio}</p>
-            <button>Edit Profile</button>
-            <form>
-              <textarea defaultValue={bio}></textarea>
-              <div>
-                <label htmlFor="company"></label>
-                <input type="text" id="company" placeholder="Company" />
-              </div>
-              <div>
-                <label htmlFor="location"></label>
-                <input type="text" id="location" placeholder="Location" />
-              </div>
-              <div>
-                <label htmlFor="email"></label>
-                <input type="email" id="email" defaultValue={email} />
-              </div>
-              <div>
-                <label htmlFor="website"></label>
-                <input type="text" id="website" placeholder="Website" />
-              </div>
-              <div>
-                <label htmlFor="twitterUsername"></label>
-                <input
-                  type="text"
-                  id="twitterUsername"
-                  placeholder="Twitter usesrname"
-                />
-              </div>
-              <button type="submit">Save</button>
-              <button>Cancel</button>
-            </form>
+
+            {isEditMode ? (
+              <>
+                {" "}
+                <form onSubmit={handleOnSubmit}>
+                  <textarea
+                    defaultValue={bio}
+                    onChange={handleOnChange}
+                    id="bio"
+                  ></textarea>
+                  <div>
+                    <label htmlFor="company"></label>
+                    <input
+                      type="text"
+                      id="company"
+                      placeholder="Company"
+                      defaultValue={company}
+                      onChange={handleOnChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="location"></label>
+                    <input
+                      type="text"
+                      id="location"
+                      placeholder="Location"
+                      defaultValue={location}
+                      onChange={handleOnChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email"></label>
+                    <input
+                      type="email"
+                      id="email"
+                      defaultValue={email}
+                      placeholder="Email"
+                      onChange={handleOnChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="website"></label>
+                    <input
+                      type="text"
+                      id="website"
+                      placeholder="Website"
+                      defaultValue={website}
+                      onChange={handleOnChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="twitterUsername"></label>
+                    <input
+                      type="text"
+                      id="twitterUsername"
+                      placeholder="Twitter usesrname"
+                      defaultValue={twitterUserName}
+                      onChange={handleOnChange}
+                    />
+                  </div>
+                  <button type="submit">Save</button>
+                  <button onClick={() => handleOnCancel()}>Cancel</button>
+                </form>
+              </>
+            ) : (
+              <>
+                {" "}
+                <p>{bio}</p>
+                <button onClick={() => handleOnEdit()}>Edit Profile</button>
+                <p>{company}</p>
+                <p>{location}</p>
+                <p>{email}</p>
+                <p>{website}</p>
+                <p>{twitterUserName}</p>
+              </>
+            )}
+
             <ul>
               <li>{followers}followers </li>
               <li>{following}following</li>
-              <li>{}</li>
+              <li>{star}</li>
             </ul>
           </div>
           <div>
-            <input type="text" placeholder="Find a repository..." />
-            <select>
-              <optgroup label="Select Type">
-                <option value="all">All</option>
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-                <option value="forks">Forks</option>
-              </optgroup>
-            </select>
+            <form>
+              <input type="search" placeholder="Find a repository..." />
+              <select>
+                <optgroup label="Select Type">
+                  <option value="all">All</option>
+                  <option value="public">Public</option>
+                  <option value="private">Private</option>
+                  <option value="forks">Forks</option>
+                </optgroup>
+              </select>
 
-            <select>
-              <optgroup label="Select Languages">
-                <option value="all">All</option>
-                <option value="SCSS">SCSS</option>
-                <option value="javascript">Javascript</option>
-                <option value="python">Python</option>
-              </optgroup>
-            </select>
+              <select>
+                <optgroup label="Select Languages">
+                  <option value="all">All</option>
+                  <option value="SCSS">SCSS</option>
+                  <option value="javascript">Javascript</option>
+                  <option value="python">Python</option>
+                </optgroup>
+              </select>
+            </form>
             <ul>
               {reposData.map((repo) => (
                 <li key={repo.id}>
