@@ -20,6 +20,7 @@ export default class Home extends Component {
     updateDate: "",
     isEditMode: false,
     star: 0,
+    search: "",
   };
 
   componentDidMount = () => {
@@ -112,6 +113,7 @@ export default class Home extends Component {
     });
   };
 
+
   render() {
     const {
       reposData,
@@ -128,9 +130,13 @@ export default class Home extends Component {
       following,
       isEditMode,
       star,
+      search,
     } = this.state;
     const { handleOnEdit, handleOnCancel, handleOnSubmit, handleOnChange } =
       this;
+     const searchedData = reposData.filter((repo) => {
+      return repo.name.toLowerCase().includes(search.toLowerCase());
+    });
     return (
       <div>
         <nav>
@@ -229,7 +235,13 @@ export default class Home extends Component {
           </div>
           <div>
             <form>
-              <input type="search" placeholder="Find a repository..." />
+              <input
+                type="search"
+                id="search"
+                placeholder="Find a repository..."
+                value={search}
+                onChange={handleOnChange}
+              />
               <select>
                 <optgroup label="Select Type">
                   <option value="all">All</option>
@@ -249,8 +261,8 @@ export default class Home extends Component {
               </select>
             </form>
             <ul>
-              {reposData.map((repo) => (
-                <li key={repo.id}>
+              {searchedData.map((repo) => (
+                <li key={repo.id} >
                   {repo.name} <div>{repo.language}</div>{" "}
                   <div>
                     Updated:{" "}
