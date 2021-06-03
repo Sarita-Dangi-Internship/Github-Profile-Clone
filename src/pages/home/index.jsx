@@ -1,20 +1,11 @@
 import React, { Component } from "react";
-import { BrowserRouter, Route, Switch, Link, Router } from "react-router-dom";
+import { Route, Switch, Link } from "react-router-dom";
 import Repository from "./../repositories/index";
 import Project from "./../projects/index";
 
-const FILTER_TYPE_MAP = {
-  All: () => true,
-  Public: (repo) => !repo.private,
-  Private: (repo) => repo.private,
-  Fork: (repo) => repo.fork,
-};
-
-const FILTER_TYPE_NAMES = Object.keys(FILTER_TYPE_MAP);
 export default class Home extends Component {
   state = {
     reposData: [],
-    originalReposData: [],
     name: "",
     username: "",
     image: "",
@@ -26,16 +17,6 @@ export default class Home extends Component {
     twitterUserName: "",
     followers: 0,
     following: 0,
-    repoName: "",
-    repoDescription: "",
-    private: false,
-    fork: false,
-    updateDate: "",
-    isEditMode: false,
-    star: 0,
-    search: "",
-    filterByType: "All",
-    filterByLanguage: "",
   };
 
   componentDidMount = () => {
@@ -84,6 +65,7 @@ export default class Home extends Component {
   handleOnEdit = () => {
     this.setState({ isEditMode: true });
   };
+
   handleOnCancel = () => {
     this.setState({ isEditMode: false });
   };
@@ -121,31 +103,9 @@ export default class Home extends Component {
     });
   };
 
-  handleOnFilter = (event) => {
-    this.setState({ [event.target.id]: event.target.value });
-  };
-
-  getLanguageName(arrayList, comparisonKey) {
-    const uniqueLanguage = arrayList
-      .map((element) => element[comparisonKey])
-      .map((element, index, array) => array.indexOf(element) === index && index)
-      .filter((element) => arrayList[element])
-      .map((element) => arrayList[element]);
-    return uniqueLanguage;
-  }
-
-  handleFilterByLanguage = (event) => {
-    this.setState({ filterByLanguage: event.target.value });
-    const filteredByLanguage = this.state.originalReposData.filter(
-      (repo) => repo.language === event.target.value
-    );
-    this.setState({ reposData: filteredByLanguage });
-  };
-
   render() {
     const {
       reposData,
-      originalReposData,
       name,
       userName,
       image,
@@ -159,36 +119,10 @@ export default class Home extends Component {
       following,
       isEditMode,
       star,
-      search,
-      filterByType,
-      filterByLanguage,
     } = this.state;
-    const {
-      handleOnEdit,
-      handleOnCancel,
-      handleOnSubmit,
-      handleOnChange,
-      handleOnFilter,
-      handleFilterByLanguage,
-      getLanguageName,
-    } = this;
 
-    const handleSearch = (event) => {
-      this.setState({
-        search: event.target.value,
-      });
-      const search = event.target.value;
-      const filteredSearch = originalReposData.filter((repo) => {
-        return repo.name.toLowerCase().includes(search.toLowerCase());
-      });
-      this.setState({ reposData: filteredSearch });
-    };
-
-    const uniqueLanguage = getLanguageName(originalReposData, "language");
-
-    // const filterDropDown = reposData.filter(
-    //   (result) => result.language === filterByLanguage
-    // );
+    const { handleOnEdit, handleOnCancel, handleOnSubmit, handleOnChange } =
+      this;
 
     return (
       <div>
@@ -311,21 +245,7 @@ export default class Home extends Component {
           </div>
 
           <Switch>
-            <Route path={"/repos"}>
-              {" "}
-              <Repository
-                search={search}
-                handleSearch={handleSearch}
-                filterByType={filterByType}
-                handleOnFilter={handleOnFilter}
-                FILTER_TYPE_NAMES={FILTER_TYPE_NAMES}
-                FILTER_TYPE_MAP={FILTER_TYPE_MAP}
-                filterByLanguage={filterByLanguage}
-                handleFilterByLanguage={handleFilterByLanguage}
-                uniqueLanguage={uniqueLanguage}
-                reposData={reposData}
-              />
-            </Route>
+            <Route path={"/repos"} component={Repository} />
             <Route path={"/projects"} component={Project} />
           </Switch>
         </div>

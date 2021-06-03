@@ -33,6 +33,7 @@
 //Layouts
 // @import 'layouts/todo';
 
+
 h1 {
   font-size: 25px;
   font-weight: bold;
@@ -71,6 +72,10 @@ select {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    .nav-bar__list-link{
+        text-decoration: none;
+        color: white;
+    }
   }
 }
 
