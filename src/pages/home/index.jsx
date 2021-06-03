@@ -1,12 +1,9 @@
 import React, { Component } from "react";
+import { BrowserRouter, Route, Switch, Link, Router } from "react-router-dom";
+import Repository from "./../repositories/index";
+import Project from "./../projects/index";
 
 const FILTER_TYPE_MAP = {
-  All: () => true,
-  Public: (repo) => !repo.private,
-  Private: (repo) => repo.private,
-  Fork: (repo) => repo.fork,
-};
-const FILTER_LANGUAGE_MAP = {
   All: () => true,
   Public: (repo) => !repo.private,
   Private: (repo) => repo.private,
@@ -50,7 +47,6 @@ export default class Home extends Component {
   fetchUserData = async () => {
     const response = await fetch("https://api.github.com/users/saritadc");
     const data = await response.json();
-    console.log("user details", data);
 
     this.setState({
       name: data.name,
@@ -70,8 +66,6 @@ export default class Home extends Component {
   fetchReposData = async () => {
     const response = await fetch("https://api.github.com/users/saritadc/repos");
     const data = await response.json();
-    console.log("repos", data);
-    console.log(data[0].private);
 
     this.setState({
       reposData: data,
@@ -84,7 +78,6 @@ export default class Home extends Component {
       "https://api.github.com/users/saritadc/starred"
     );
     const data = await response.json();
-    console.log("starred", data);
     this.setState({ star: data.length });
   };
 
@@ -123,7 +116,6 @@ export default class Home extends Component {
   };
 
   handleOnChange = (event) => {
-    console.log("e", event.target.id);
     this.setState({
       [event.target.id]: event.target.value,
     });
@@ -131,10 +123,9 @@ export default class Home extends Component {
 
   handleOnFilter = (event) => {
     this.setState({ [event.target.id]: event.target.value });
-    console.log("filter", this.state.filterByLanguage);
   };
 
-  getUnique(arrayList, comparisonKey) {
+  getLanguageName(arrayList, comparisonKey) {
     const uniqueLanguage = arrayList
       .map((element) => element[comparisonKey])
       .map((element, index, array) => array.indexOf(element) === index && index)
@@ -150,13 +141,6 @@ export default class Home extends Component {
     );
     this.setState({ reposData: filteredByLanguage });
   };
-  // handleFilterByType = (event) => {
-  //   this.setState({ filterByType: event.target.value });
-  //   const filteredByType = this.state.originalReposData.filter(
-  //     (repo) => repo.private === event.target.value
-  //   );
-  //   this.setState({ reposData: filteredByLanguage });
-  // };
 
   render() {
     const {
@@ -185,8 +169,8 @@ export default class Home extends Component {
       handleOnSubmit,
       handleOnChange,
       handleOnFilter,
-      getUnique,
       handleFilterByLanguage,
+      getLanguageName,
     } = this;
 
     const handleSearch = (event) => {
@@ -200,24 +184,27 @@ export default class Home extends Component {
       this.setState({ reposData: filteredSearch });
     };
 
-    const uniqueLanguage = getUnique(originalReposData, "language");
+    const uniqueLanguage = getLanguageName(originalReposData, "language");
 
-    const filterDropDown = reposData.filter(
-      (result) => result.language === filterByLanguage
-    );
+    // const filterDropDown = reposData.filter(
+    //   (result) => result.language === filterByLanguage
+    // );
 
-    console.log("languange", filterDropDown);
     return (
       <div>
         <nav className="nav-bar">
           <ul className="nav-bar__list">
-            <li>Repositories({reposData.length})</li>
-            <li>Projects</li>
+            <Link to={"/repos"} className="nav-bar__list-link">
+              <li>Repositories({reposData.length})</li>
+            </Link>
+            <Link to={"/projects"} className="nav-bar__list-link">
+              <li>Projects</li>
+            </Link>
           </ul>
         </nav>
-        <div style={{ display: "flex" }} className="main-container">
+        <div className="main-container">
           <div className="main-container__account-details">
-            <div className="">
+            <div className="account-details__username">
               <img
                 src={image}
                 alt="profile"
@@ -228,7 +215,7 @@ export default class Home extends Component {
               <h1>{name}</h1>
               <h5>{userName}</h5>
             </div>
-            <div>
+            <div className="account-details__edit-form">
               {isEditMode ? (
                 <>
                   {" "}
@@ -288,8 +275,15 @@ export default class Home extends Component {
                         onChange={handleOnChange}
                       />
                     </div>
-                    <button type="submit">Save</button>
-                    <button onClick={() => handleOnCancel()}>Cancel</button>
+                    <button type="submit" className="save-button">
+                      Save
+                    </button>
+                    <button
+                      onClick={() => handleOnCancel()}
+                      className="cancel-button"
+                    >
+                      Cancel
+                    </button>
                   </form>
                 </>
               ) : (
@@ -305,89 +299,35 @@ export default class Home extends Component {
                 </>
               )}
             </div>
-            <div>
-              <ul>
-                <li>{followers}followers </li>
-                <li>{following}following</li>
+            <div className="account-details__follower-following">
+              <ul className="follower-following__list">
+                <li className="follower-following__list__item">
+                  {followers} followers{" "}
+                </li>
+                <li>{following} following</li>
                 <li>{star}</li>
               </ul>
             </div>
           </div>
-          <div className="main-container__repositories">
-            <form>
-              <input
-                type="search"
-                id="search"
-                placeholder="Find a repository..."
-                value={search}
-                onChange={handleSearch}
+
+          <Switch>
+            <Route path={"/repos"}>
+              {" "}
+              <Repository
+                search={search}
+                handleSearch={handleSearch}
+                filterByType={filterByType}
+                handleOnFilter={handleOnFilter}
+                FILTER_TYPE_NAMES={FILTER_TYPE_NAMES}
+                FILTER_TYPE_MAP={FILTER_TYPE_MAP}
+                filterByLanguage={filterByLanguage}
+                handleFilterByLanguage={handleFilterByLanguage}
+                uniqueLanguage={uniqueLanguage}
+                reposData={reposData}
               />
-              <select
-                value={filterByType}
-                onChange={handleOnFilter}
-                id="filterByType"
-              >
-                <optgroup label="Select Type">
-                  {FILTER_TYPE_NAMES.map((type) => (
-                    <option role="button" key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-
-              <select
-                value={filterByLanguage}
-                onChange={handleFilterByLanguage}
-                id="filterByLanguage"
-              >
-                <optgroup label="Select Languages">
-                  {uniqueLanguage
-                    .filter((language) => language.language !== null)
-                    .map((language) => (
-                      <option key={language.id} value={language.language}>
-                        {language.language}
-                      </option>
-                    ))}
-                </optgroup>
-              </select>
-            </form>
-            <ul>
-              {/* {searchedData
-                .filter(FILTER_TYPE_MAP[filterByType])
-                .map((repo) => (
-                  <li key={repo.id}>
-                    {repo.name} <div>{repo.description}</div>
-                    <div>{repo.language}</div>{" "}
-                    <div>
-                      Updated:{" "}
-                      {(new Date(new Date().toLocaleDateString()).getTime() -
-                        new Date(
-                          new Date(repo.updated_at).toLocaleDateString()
-                        ).getTime()) /
-                        (1000 * 3600 * 24)}{" "}
-                      days ago
-                    </div>
-                  </li>
-                ))} */}
-
-              {reposData.filter(FILTER_TYPE_MAP[filterByType]).map((repo) => (
-                <li key={repo.id}>
-                  {repo.name} <div>{repo.description}</div>
-                  <div>{repo.language}</div>{" "}
-                  <div>
-                    Updated:{" "}
-                    {(new Date(new Date().toLocaleDateString()).getTime() -
-                      new Date(
-                        new Date(repo.updated_at).toLocaleDateString()
-                      ).getTime()) /
-                      (1000 * 3600 * 24)}{" "}
-                    days ago
-                  </div>{" "}
-                </li>
-              ))}
-            </ul>
-          </div>
+            </Route>
+            <Route path={"/projects"} component={Project} />
+          </Switch>
         </div>
       </div>
     );
