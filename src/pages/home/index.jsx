@@ -1,5 +1,19 @@
 import React, { Component } from "react";
 
+const FILTER_TYPE_MAP = {
+  All: () => true,
+  Public: (repo) => !repo.private,
+  Private: (repo) => repo.private,
+  Fork: (repo) => repo.fork,
+};
+const FILTER_LANGUAGE_MAP = {
+  All: () => true,
+  Public: (repo) => !repo.private,
+  Private: (repo) => repo.private,
+  Fork: (repo) => repo.fork,
+};
+
+const FILTER_TYPE_NAMES = Object.keys(FILTER_TYPE_MAP);
 export default class Home extends Component {
   state = {
     reposData: [],
@@ -16,11 +30,14 @@ export default class Home extends Component {
     following: 0,
     repoName: "",
     repoDescription: "",
-    public: true,
+    private: false,
+    fork: false,
     updateDate: "",
     isEditMode: false,
     star: 0,
     search: "",
+    filterByType: "All",
+    filterByLanguage: "",
   };
 
   componentDidMount = () => {
@@ -32,7 +49,7 @@ export default class Home extends Component {
   fetchUserData = async () => {
     const response = await fetch("https://api.github.com/users/saritadc");
     const data = await response.json();
-    console.log(data);
+    console.log("user details", data);
 
     this.setState({
       name: data.name,
@@ -52,14 +69,11 @@ export default class Home extends Component {
   fetchReposData = async () => {
     const response = await fetch("https://api.github.com/users/saritadc/repos");
     const data = await response.json();
-    console.log(data);
+    console.log("repos", data);
+    console.log(data[0].private);
 
     this.setState({
       reposData: data,
-      repoName: data[0].name,
-      repoDescription: data.description,
-      private: data.private,
-      updateDate: data.updated_at,
     });
   };
 
@@ -113,6 +127,21 @@ export default class Home extends Component {
     });
   };
 
+  handleOnFilter = (event) => {
+    this.setState({ [event.target.id]: event.target.value });
+    console.log("filter", this.state.filterByLanguage);
+  };
+
+  getUnique(arrayList, comparisonKey) {
+    const uniqueLanguage = arrayList
+      .map((element) => element[comparisonKey])
+      .map((element, index, array) => array.indexOf(element) === index && index)
+      .filter((element) => arrayList[element])
+      .map((element) => arrayList[element]);
+    return uniqueLanguage;
+  }
+
+  filterData = () => {};
 
   render() {
     const {
@@ -131,107 +160,128 @@ export default class Home extends Component {
       isEditMode,
       star,
       search,
+      filterByType,
+      filterByLanguage,
     } = this.state;
-    const { handleOnEdit, handleOnCancel, handleOnSubmit, handleOnChange } =
-      this;
-     const searchedData = reposData.filter((repo) => {
+    const {
+      handleOnEdit,
+      handleOnCancel,
+      handleOnSubmit,
+      handleOnChange,
+      handleOnFilter,
+      getUnique,
+    } = this;
+
+    const searchedData = reposData.filter((repo) => {
       return repo.name.toLowerCase().includes(search.toLowerCase());
     });
+
+    const uniqueLanguage = getUnique(reposData, "language");
+
+    const filterDropDown = reposData.filter(
+      (result) => result.language === filterByLanguage
+    );
+
+    console.log("languange", filterDropDown);
     return (
       <div>
-        <nav>
-          <ul>
+        <nav className="nav-bar">
+          <ul className="navBar__list">
             <li>Repositories({reposData.length})</li>
             <li>Projects</li>
           </ul>
         </nav>
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex" }} className="main-container">
           <div>
-            <img src={image} alt="profile" height={200} width={200} />
-            <h1>{name}</h1>
-            <h5>{userName}</h5>
-
-            {isEditMode ? (
-              <>
-                {" "}
-                <form onSubmit={handleOnSubmit}>
-                  <textarea
-                    defaultValue={bio}
-                    onChange={handleOnChange}
-                    id="bio"
-                  ></textarea>
-                  <div>
-                    <label htmlFor="company"></label>
-                    <input
-                      type="text"
-                      id="company"
-                      placeholder="Company"
-                      defaultValue={company}
+            <div>
+              <img src={image} alt="profile" height={200} width={200} />
+              <h1>{name}</h1>
+              <h5>{userName}</h5>
+            </div>
+            <div>
+              {isEditMode ? (
+                <>
+                  {" "}
+                  <form onSubmit={handleOnSubmit}>
+                    <textarea
+                      defaultValue={bio}
                       onChange={handleOnChange}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="location"></label>
-                    <input
-                      type="text"
-                      id="location"
-                      placeholder="Location"
-                      defaultValue={location}
-                      onChange={handleOnChange}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email"></label>
-                    <input
-                      type="email"
-                      id="email"
-                      defaultValue={email}
-                      placeholder="Email"
-                      onChange={handleOnChange}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="website"></label>
-                    <input
-                      type="text"
-                      id="website"
-                      placeholder="Website"
-                      defaultValue={website}
-                      onChange={handleOnChange}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="twitterUsername"></label>
-                    <input
-                      type="text"
-                      id="twitterUsername"
-                      placeholder="Twitter usesrname"
-                      defaultValue={twitterUserName}
-                      onChange={handleOnChange}
-                    />
-                  </div>
-                  <button type="submit">Save</button>
-                  <button onClick={() => handleOnCancel()}>Cancel</button>
-                </form>
-              </>
-            ) : (
-              <>
-                {" "}
-                <p>{bio}</p>
-                <button onClick={() => handleOnEdit()}>Edit Profile</button>
-                <p>{company}</p>
-                <p>{location}</p>
-                <p>{email}</p>
-                <p>{website}</p>
-                <p>{twitterUserName}</p>
-              </>
-            )}
-
-            <ul>
-              <li>{followers}followers </li>
-              <li>{following}following</li>
-              <li>{star}</li>
-            </ul>
+                      id="bio"
+                    ></textarea>
+                    <div>
+                      <label htmlFor="company"></label>
+                      <input
+                        type="text"
+                        id="company"
+                        placeholder="Company"
+                        defaultValue={company}
+                        onChange={handleOnChange}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="location"></label>
+                      <input
+                        type="text"
+                        id="location"
+                        placeholder="Location"
+                        defaultValue={location}
+                        onChange={handleOnChange}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email"></label>
+                      <input
+                        type="email"
+                        id="email"
+                        defaultValue={email}
+                        placeholder="Email"
+                        onChange={handleOnChange}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="website"></label>
+                      <input
+                        type="text"
+                        id="website"
+                        placeholder="Website"
+                        defaultValue={website}
+                        onChange={handleOnChange}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="twitterUsername"></label>
+                      <input
+                        type="text"
+                        id="twitterUsername"
+                        placeholder="Twitter usesrname"
+                        defaultValue={twitterUserName}
+                        onChange={handleOnChange}
+                      />
+                    </div>
+                    <button type="submit">Save</button>
+                    <button onClick={() => handleOnCancel()}>Cancel</button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  {" "}
+                  <p>{bio}</p>
+                  <button onClick={() => handleOnEdit()}>Edit Profile</button>
+                  <p>{company}</p>
+                  <p>{location}</p>
+                  <p>{email}</p>
+                  <p>{website}</p>
+                  <p>{twitterUserName}</p>
+                </>
+              )}
+            </div>
+            <div>
+              <ul>
+                <li>{followers}followers </li>
+                <li>{following}following</li>
+                <li>{star}</li>
+              </ul>
+            </div>
           </div>
           <div>
             <form>
@@ -242,28 +292,59 @@ export default class Home extends Component {
                 value={search}
                 onChange={handleOnChange}
               />
-              <select>
+              <select
+                value={filterByType}
+                onChange={handleOnFilter}
+                id="filterByType"
+              >
                 <optgroup label="Select Type">
-                  <option value="all">All</option>
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                  <option value="forks">Forks</option>
+                  {FILTER_TYPE_NAMES.map((type) => (
+                    <option role="button" key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
                 </optgroup>
               </select>
 
-              <select>
+              <select
+                value={filterByLanguage}
+                onChange={handleOnFilter}
+                id="filterByLanguage"
+              >
                 <optgroup label="Select Languages">
-                  <option value="all">All</option>
-                  <option value="SCSS">SCSS</option>
-                  <option value="javascript">Javascript</option>
-                  <option value="python">Python</option>
+                  {uniqueLanguage
+                    .filter((language) => language.language !== null)
+                    .map((language) => (
+                      <option key={language.id} value={language.language}>
+                        {language.language}
+                      </option>
+                    ))}
                 </optgroup>
               </select>
             </form>
             <ul>
-              {searchedData.map((repo) => (
-                <li key={repo.id} >
-                  {repo.name} <div>{repo.language}</div>{" "}
+              {searchedData
+                .filter(FILTER_TYPE_MAP[filterByType])
+                .map((repo) => (
+                  <li key={repo.id}>
+                    {repo.name} <div>{repo.description}</div>
+                    <div>{repo.language}</div>{" "}
+                    <div>
+                      Updated:{" "}
+                      {(new Date(new Date().toLocaleDateString()).getTime() -
+                        new Date(
+                          new Date(repo.updated_at).toLocaleDateString()
+                        ).getTime()) /
+                        (1000 * 3600 * 24)}{" "}
+                      days ago
+                    </div>
+                  </li>
+                ))}
+
+              {/* {reposData.map((repo) => (
+                <li key={repo.id}>
+                  {repo.name} <div>{repo.description}</div>
+                  <div>{repo.language}</div>{" "}
                   <div>
                     Updated:{" "}
                     {(new Date(new Date().toLocaleDateString()).getTime() -
@@ -272,9 +353,9 @@ export default class Home extends Component {
                       ).getTime()) /
                       (1000 * 3600 * 24)}{" "}
                     days ago
-                  </div>
+                  </div>{" "}
                 </li>
-              ))}
+              ))} */}
             </ul>
           </div>
         </div>
