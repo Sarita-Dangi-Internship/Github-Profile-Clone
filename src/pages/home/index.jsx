@@ -17,6 +17,7 @@ const FILTER_TYPE_NAMES = Object.keys(FILTER_TYPE_MAP);
 export default class Home extends Component {
   state = {
     reposData: [],
+    originalReposData: [],
     name: "",
     username: "",
     image: "",
@@ -74,6 +75,7 @@ export default class Home extends Component {
 
     this.setState({
       reposData: data,
+      originalReposData: data,
     });
   };
 
@@ -141,11 +143,25 @@ export default class Home extends Component {
     return uniqueLanguage;
   }
 
-  filterData = () => {};
+  handleFilterByLanguage = (event) => {
+    this.setState({ filterByLanguage: event.target.value });
+    const filteredByLanguage = this.state.originalReposData.filter(
+      (repo) => repo.language === event.target.value
+    );
+    this.setState({ reposData: filteredByLanguage });
+  };
+  // handleFilterByType = (event) => {
+  //   this.setState({ filterByType: event.target.value });
+  //   const filteredByType = this.state.originalReposData.filter(
+  //     (repo) => repo.private === event.target.value
+  //   );
+  //   this.setState({ reposData: filteredByLanguage });
+  // };
 
   render() {
     const {
       reposData,
+      originalReposData,
       name,
       userName,
       image,
@@ -170,13 +186,21 @@ export default class Home extends Component {
       handleOnChange,
       handleOnFilter,
       getUnique,
+      handleFilterByLanguage,
     } = this;
 
-    const searchedData = reposData.filter((repo) => {
-      return repo.name.toLowerCase().includes(search.toLowerCase());
-    });
+    const handleSearch = (event) => {
+      this.setState({
+        search: event.target.value,
+      });
+      const search = event.target.value;
+      const filteredSearch = originalReposData.filter((repo) => {
+        return repo.name.toLowerCase().includes(search.toLowerCase());
+      });
+      this.setState({ reposData: filteredSearch });
+    };
 
-    const uniqueLanguage = getUnique(reposData, "language");
+    const uniqueLanguage = getUnique(originalReposData, "language");
 
     const filterDropDown = reposData.filter(
       (result) => result.language === filterByLanguage
@@ -186,15 +210,21 @@ export default class Home extends Component {
     return (
       <div>
         <nav className="nav-bar">
-          <ul className="navBar__list">
+          <ul className="nav-bar__list">
             <li>Repositories({reposData.length})</li>
             <li>Projects</li>
           </ul>
         </nav>
         <div style={{ display: "flex" }} className="main-container">
-          <div>
-            <div>
-              <img src={image} alt="profile" height={200} width={200} />
+          <div className="main-container__account-details">
+            <div className="">
+              <img
+                src={image}
+                alt="profile"
+                height={200}
+                width={200}
+                className="profile-image"
+              />
               <h1>{name}</h1>
               <h5>{userName}</h5>
             </div>
@@ -283,14 +313,14 @@ export default class Home extends Component {
               </ul>
             </div>
           </div>
-          <div>
+          <div className="main-container__repositories">
             <form>
               <input
                 type="search"
                 id="search"
                 placeholder="Find a repository..."
                 value={search}
-                onChange={handleOnChange}
+                onChange={handleSearch}
               />
               <select
                 value={filterByType}
@@ -308,7 +338,7 @@ export default class Home extends Component {
 
               <select
                 value={filterByLanguage}
-                onChange={handleOnFilter}
+                onChange={handleFilterByLanguage}
                 id="filterByLanguage"
               >
                 <optgroup label="Select Languages">
@@ -323,7 +353,7 @@ export default class Home extends Component {
               </select>
             </form>
             <ul>
-              {searchedData
+              {/* {searchedData
                 .filter(FILTER_TYPE_MAP[filterByType])
                 .map((repo) => (
                   <li key={repo.id}>
@@ -339,9 +369,9 @@ export default class Home extends Component {
                       days ago
                     </div>
                   </li>
-                ))}
+                ))} */}
 
-              {/* {reposData.map((repo) => (
+              {reposData.filter(FILTER_TYPE_MAP[filterByType]).map((repo) => (
                 <li key={repo.id}>
                   {repo.name} <div>{repo.description}</div>
                   <div>{repo.language}</div>{" "}
@@ -355,7 +385,7 @@ export default class Home extends Component {
                     days ago
                   </div>{" "}
                 </li>
-              ))} */}
+              ))}
             </ul>
           </div>
         </div>
