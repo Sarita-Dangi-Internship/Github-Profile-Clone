@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { Route, Switch, Link } from "react-router-dom";
-import Repository from "./../repositories/index";
+
 import CONSTANTS from "./../../constants/appConstant";
+import { REPOS, PROJECTS } from "./../../constants/routes";
+import Repository from "./../repositories/index";
 import Project from "./../projects/index";
 
 const { baseURL } = CONSTANTS;
@@ -129,10 +131,10 @@ export default class Home extends Component {
       <div>
         <nav className="nav-bar">
           <ul className="nav-bar__list">
-            <Link to={"/repos"} className="nav-bar__list-link">
+            <Link to={REPOS} className="nav-bar__list-link">
               <li>Repositories({reposData.length})</li>
             </Link>
-            <Link to={"/projects"} className="nav-bar__list-link">
+            <Link to={PROJECTS} className="nav-bar__list-link">
               <li>Projects</li>
             </Link>
           </ul>
