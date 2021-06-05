@@ -1,7 +1,10 @@
 import React, { Component } from "react";
 import { Route, Switch, Link } from "react-router-dom";
 import Repository from "./../repositories/index";
+import CONSTANTS from "./../../constants/appConstant";
 import Project from "./../projects/index";
+
+const { baseURL } = CONSTANTS;
 
 export default class Home extends Component {
   state = {
@@ -26,7 +29,7 @@ export default class Home extends Component {
   };
 
   fetchUserData = async () => {
-    const response = await fetch("https://api.github.com/users/saritadc");
+    const response = await fetch(`${baseURL}/saritadc`);
     const data = await response.json();
 
     this.setState({
@@ -45,7 +48,7 @@ export default class Home extends Component {
   };
 
   fetchReposData = async () => {
-    const response = await fetch("https://api.github.com/users/saritadc/repos");
+    const response = await fetch(`${baseURL}/saritadc/repos`);
     const data = await response.json();
 
     this.setState({
@@ -55,9 +58,7 @@ export default class Home extends Component {
   };
 
   fetchStarred = async () => {
-    const response = await fetch(
-      "https://api.github.com/users/saritadc/starred"
-    );
+    const response = await fetch(`${baseURL}/saritadc/starred`);
     const data = await response.json();
     this.setState({ star: data.length });
   };
