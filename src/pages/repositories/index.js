@@ -87,6 +87,8 @@ export default class Repository extends Component {
 
     const uniqueLanguage = getLanguageName(originalReposData, "language");
 
+    console.log("uni", uniqueLanguage);
+    console.log("uni",originalReposData);
     // const filterDropDown = reposData.filter(
     //   (result) => result.language === filterByLanguage
     // );
@@ -146,8 +148,15 @@ export default class Repository extends Component {
                   new Date(
                     new Date(repo.updated_at).toLocaleDateString()
                   ).getTime()) /
-                  (1000 * 3600 * 24)}{" "}
-                days ago
+                  (1000 * 3600 * 24) <
+                30
+                  ? `${(new Date(new Date().toLocaleDateString()).getTime() -
+                      new Date(
+                        new Date(repo.updated_at).toLocaleDateString()
+                      ).getTime()) /
+                    (1000 * 3600 * 24)} days ago`
+                  : new Date(repo.updated_at).toDateString()}{" "}
+               
               </div>{" "}
             </li>
           ))}
