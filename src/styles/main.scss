@@ -1,0 +1,129 @@
+// ==========================================================================
+// Global Settings
+// ==========================================================================
+// @import 'helpers/config';
+// @import 'helpers/colors';
+// Mixins
+// @import 'helpers/mixins/breakpoints';
+// @import 'helpers/mixins/clearfix';
+// @import 'helpers/mixins/input-placeholder';
+// @import 'helpers/mixins/position';
+// @import 'helpers/mixins/position-center';
+// @import 'helpers/mixins/reset-list';
+// @import 'helpers/mixins/hardware-acceleration';
+// @import 'helpers/mixins/truncate';
+// @import 'helpers/mixins/background-transition';
+// @import 'helpers/mixins/slanted-edge';
+
+// ==========================================================================
+// Base Styles
+// ==========================================================================
+@import "base/reset";
+@import "base/base";
+// @import 'base/typography';
+
+// ==========================================================================
+// Components
+// Styles for generic UI components
+// Examples include navbar, dialog boxes, carousels, sidebar etc
+// ==========================================================================
+// @import 'components/button';
+// @import 'components/checkbox';
+
+//Layouts
+// @import 'layouts/todo';
+
+
+h1 {
+  font-size: 25px;
+  font-weight: bold;
+  color: #1a1919cc;
+}
+h2 {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1a1919cc;
+}
+
+p {
+  font-size: 15px;
+  color: #1a1919cc;
+  margin: 10px 0;
+}
+
+input,
+textarea,
+button,
+select {
+  border: 1px solid #ccc;
+  outline: none;
+  padding: 10px;
+  margin: 3px 0;
+  border-radius: 5px;
+}
+.nav-bar {
+  width: 100%;
+  background: black;
+  color: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  .nav-bar__list {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    .nav-bar__list-link{
+        text-decoration: none;
+        color: white;
+    }
+  }
+}
+
+.main-container {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  &__account-details {
+    margin-right: 20px;
+    .profile-image {
+      border-radius: 50%;
+    }
+    .account-details__edit-form {
+      margin-top: 10px;
+      .cancel-button {
+        margin-left: 5px;
+      }
+      .save-button {
+        background: rgba(31, 175, 18, 0.835);
+      }
+    }
+    .account-details__follower-following {
+      margin-top: 10px;
+      .follower-following__list {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
+
+  &__repositories {
+    .repositories-form {
+      select {
+        margin: 0 5px;
+      }
+    }
+    .repositories-list{
+       
+        &__items{
+             margin: 15px 0px;
+             .repo-name, .repo-description, .repo-language, .repo-date{
+                 margin: 3px 0px;
+             }
+             .repo-language{
+                 font-style: italic;
+             }
+        }
+
+    }
+  }
+}
